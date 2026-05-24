@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Janet — Domains & RSS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --ink:       #0f0f0f;
+  --ink-2:     #3a3a3a;
+  --ink-3:     #888;
+  --surface:   #f7f6f2;
+  --surface-2: #edecea;
+  --teal:      #0d9e75;
+  --teal-2:    #085041;
+  --teal-pale: #e1f5ee;
+  --purple:    #534ab7;
+  --purple-pale:#eeedfe;
+  --amber:     #ba7517;
+  --amber-pale:#faeeda;
+  --border:    rgba(0,0,0,0.09);
+  --r:         10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  border-bottom: 0.5px solid var(--border);
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-family: 'DM Mono', monospace;
+}
+.tick-badge {
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: var(--teal-pale);
+  color: var(--teal-2);
+  border: 0.5px solid #9fe1cb;
+  font-size: 11px;
+}
+
+/* ── Section heading ── */
+.section-head {
+  padding: 32px 28px 16px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.section-head h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink);
+}
+.section-head span {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: .04em;
+}
+.section-divider {
+  margin: 0 28px;
+  border: none;
+  border-top: 0.5px solid var(--border);
+}
+
+/* ── Triadic strip ── */
+.triadic-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  margin: 0 28px 0;
+  border: 0.5px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: #fff;
+}
+.triadic-tile {
+  padding: 22px 22px 20px;
+  border-right: 0.5px solid var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background .15s;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+.triadic-tile:last-child { border-right: none; }
+.triadic-tile:hover { background: var(--surface); }
+
+.triadic-tile .arm-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.arm-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.arm-a .arm-dot { background: var(--teal); }
+.arm-b .arm-dot { background: var(--purple); }
+.arm-c .arm-dot { background: var(--amber); }
+
+.triadic-tile h3 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.triadic-tile .tile-desc {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.tile-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tile-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 0.5px solid var(--border);
+  color: var(--ink-3);
+}
+.arm-a .tile-tag.active { background: var(--teal-pale); color: var(--teal-2); border-color: #9fe1cb; }
+.arm-b .tile-tag.active { background: var(--purple-pale); color: var(--purple); border-color: #afa9ec; }
+.arm-c .tile-tag.active { background: var(--amber-pale); color: var(--amber); border-color: #fac775; }
+
+.tile-n {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.arm-a .tile-n { color: var(--teal); }
+.arm-b .tile-n { color: var(--purple); }
+.arm-c .tile-n { color: var(--amber); }
+
+.open-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 0.5px solid var(--border);
+  font-size: 12px;
+  color: var(--ink-3);
+  transition: all .15s;
+}
+.triadic-tile:hover .open-arrow {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+
+/* ── Filter row ── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 28px 4px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 0.5px solid var(--border);
+  background: #fff;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all .12s;
+}
+.filter-btn:hover { border-color: var(--teal); color: var(--teal); }
+.filter-btn.on { background: var(--teal); color: #fff; border-color: var(--teal); }
+.filter-spacer { flex: 1; }
+.coherent-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.toggle-track {
+  width: 30px; height: 16px;
+  border-radius: 8px;
+  border: 0.5px solid var(--border);
+  background: var(--surface-2);
+  position: relative;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.toggle-track.on { background: var(--teal); border-color: var(--teal); }
+.toggle-thumb {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  top: 2px; left: 2px;
+  transition: left .2s;
+}
+.toggle-track.on .toggle-thumb { left: 16px; }
+
+/* ── Tile grid ── */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  padding: 16px 28px 40px;
+}
+
+.feed-tile {
+  background: #fff;
+  border: 0.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px 14px;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+  overflow: hidden;
+}
+.feed-tile:hover {
+  border-color: rgba(0,0,0,0.18);
+  transform: translateY(-1px);
+}
+.feed-tile.coherent-item {
+  border-color: #9fe1cb;
+}
+.feed-tile.coherent-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--teal);
+  border-radius: var(--r) 0 0 var(--r);
+}
+
+.feed-tile-source {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-3);
+  letter-spacing: .04em;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.source-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.feed-tile h4 {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.feed-tile .feed-summary {
+  font-size: 11px;
+  color: var(--ink-3);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.feed-tile-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feed-pos {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 0.5px solid var(--border);
+  color: var(--ink-3);
+}
+.feed-pos.coh { background: var(--teal-pale); color: var(--teal-2); border-color: #9fe1cb; }
+.feed-disc {
+  font-size: 10px;
+  color: var(--ink-3);
+}
+.feed-age {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+/* ── Coherent band callout ── */
+.coherent-callout {
+  margin: 16px 28px 0;
+  background: var(--teal-pale);
+  border: 0.5px solid #9fe1cb;
+  border-radius: var(--r);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--teal-2);
+}
+.coherent-callout strong {
+  font-weight: 500;
+}
+.coh-icon {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--teal);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px #c1edd9;
+}
+
+/* ── Zone legend ── */
+.zone-legend {
+  display: flex;
+  gap: 14px;
+  padding: 0 28px 8px;
+  flex-wrap: wrap;
+}
+.zone-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--ink-3);
+}
+.zone-swatch {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Janet
+    <span style="color:var(--ink-3);font-weight:300">/ Domains &amp; RSS</span>
+  </div>
+  <div class="header-right">
+    <span>cycle 3,847</span>
+    <span class="tick-badge">verified · 7c4e…b09f</span>
+  </div>
+</header>
+
+<!-- Triadic anchor strip -->
+<div class="section-head">
+  <h2>Shell surfaces</h2>
+  <span>permanent · triadic anchor</span>
+</div>
+
+<div class="triadic-strip">
+
+  <a href="/index.html" class="triadic-tile arm-a">
+    <span class="tile-n">n = +43</span>
+    <div class="arm-label"><div class="arm-dot"></div>A · Input</div>
+    <h3>Identity</h3>
+    <p class="tile-desc">Device pubkey, profile, family membership, QR join flow, and session state.</p>
+    <div class="tile-meta">
+      <span class="tile-tag active">Profile rail</span>
+      <span class="tile-tag active">QR join</span>
+      <div class="open-arrow">↗</div>
+    </div>
+  </a>
+
+  <a href="/index.html#coordinate" class="triadic-tile arm-b">
+    <span class="tile-n">n = 0</span>
+    <div class="arm-label"><div class="arm-dot"></div>B · Control</div>
+    <h3>Coordinate</h3>
+    <p class="tile-desc">217-node ring, zone navigation, phase-tick cadence, lattice position, and lens substrate.</p>
+    <div class="tile-meta">
+      <span class="tile-tag active">Workspace</span>
+      <span class="tile-tag active">Equilibrium</span>
+      <div class="open-arrow">↗</div>
+    </div>
+  </a>
+
+  <a href="/index.html#connect" class="triadic-tile arm-c">
+    <span class="tile-n">n = −43</span>
+    <div class="arm-label"><div class="arm-dot"></div>C · Output</div>
+    <h3>Connect</h3>
+    <p class="tile-desc">Peers, transport layer, Nostr · Reticulum · Meshtastic adapters, and federated registry.</p>
+    <div class="tile-meta">
+      <span class="tile-tag active">Reference rail</span>
+      <span class="tile-tag active">Transport</span>
+      <div class="open-arrow">↗</div>
+    </div>
+  </a>
+
+</div>
+
+<!-- Coherent band callout -->
+<div class="coherent-callout" id="cohCallout" style="display:none">
+  <div class="coh-icon"></div>
+  <div><strong>Coherent band active</strong> — positions n 9–15 are highlighted. All three triadic components are positive at these positions.</div>
+</div>
+
+<!-- Feed section -->
+<div class="section-head" style="padding-top:28px">
+  <h2>Curated feeds</h2>
+  <span>family + domain · auto-discovered</span>
+</div>
+<hr class="section-divider"/>
+
+<div class="filter-row">
+  <button class="filter-btn on" onclick="filterFeed('all',this)">All</button>
+  <button class="filter-btn" onclick="filterFeed('family',this)">Family</button>
+  <button class="filter-btn" onclick="filterFeed('domain',this)">Domains</button>
+  <button class="filter-btn" onclick="filterFeed('discovered',this)">Discovered</button>
+  <div class="filter-spacer"></div>
+  <div class="coherent-toggle" onclick="toggleCoherent()">
+    <div class="toggle-track" id="cohToggle"><div class="toggle-thumb"></div></div>
+    Coherent band
+  </div>
+</div>
+
+<div class="zone-legend">
+  <div class="zone-item"><div class="zone-swatch" style="background:#534ab7"></div>Account</div>
+  <div class="zone-item"><div class="zone-swatch" style="background:#378add"></div>Network</div>
+  <div class="zone-item"><div class="zone-swatch" style="background:#639922"></div>Domains</div>
+  <div class="zone-item"><div class="zone-swatch" style="background:#ba7517"></div>Storage</div>
+  <div class="zone-item"><div class="zone-swatch" style="background:#0d9e75"></div>Community</div>
+  <div class="zone-item"><div class="zone-swatch" style="background:#d4537e"></div>Activity</div>
+  <div class="zone-item"><div class="zone-swatch" style="background:#d85a30"></div>Peers</div>
+  <div class="zone-item"><div class="zone-swatch" style="background:#888780"></div>Ideas</div>
+</div>
+
+<div class="tile-grid" id="tileGrid"></div>
+
+<script>
+var ZONE_COLORS = ['#534ab7','#378add','#639922','#ba7517','#0d9e75','#d4537e','#d85a30','#888780'];
+var ZONE_NAMES  = ['Account','Network','Domains','Storage','Community','Activity','Peers','Ideas'];
+
+var FEEDS = [
+  { title:'Structural properties of lateral kinship networks', source:'Journal of Social Networks', summary:'Examines triadic closure in degree-4 lateral relationships across cultural contexts, with implications for distributed trust.', n:12, zone:4, disc:'Sociology', age:'2h', type:'discovered', coherent:true },
+  { title:'New family member joined — degree 2', source:'Family · internal', summary:'A second-degree relative completed the QR join flow. Their ring position has been populated at n=−77.', n:-77, zone:2, disc:'Community', age:'14m', type:'family', coherent:false },
+  { title:'Phase synchronisation in distributed systems', source:'IEEE Transactions', summary:'Formal treatment of consensus timing in eventually-consistent peer networks using cycle-aligned tick intervals.', n:11, zone:4, disc:'Engineering', age:'4h', type:'discovered', coherent:true },
+  { title:'Knowledge gap filled at position +62', source:'Rewards · internal', summary:'A contribution at n=+62 closed a 24-hour gap in the Activity zone. Discovery share: 0.67.', n:62, zone:5, disc:'Activity', age:'1h', type:'domain', coherent:false },
+  { title:'Recursive data structures and self-reference', source:'Theoretical CS', summary:'Analysis of fixed-point constructions in type systems. Maps naturally onto the 217-node ring\'s self-referential property.', n:9, zone:3, disc:'Mathematics', age:'6h', type:'discovered', coherent:true },
+  { title:'Reticulum adapter reached READY state', source:'Network · internal', summary:'The Reticulum transport adapter connected to the local TCP interface at 127.0.0.1:4242 and is now routing envelopes.', n:17, zone:1, disc:'Network', age:'33m', type:'domain', coherent:false },
+  { title:'Antisymmetric tensor decompositions', source:'Linear Algebra & Applications', summary:'Canonical forms for skew-symmetric tensors. The antisymmetric partner relationship n ↔ −n is a direct instance.', n:-30, zone:0, disc:'Mathematics', age:'8h', type:'domain', coherent:false },
+  { title:'New RSS source discovered — lateral kinship', source:'RSS Discovery · auto', summary:'Feed confirmed at exampledomain.com/feed via /feed suffix pattern. Anchored to n=+12, discipline: Sociology.', n:12, zone:4, disc:'Discovery', age:'52m', type:'discovered', coherent:true },
+  { title:'Provenance tracking in federated databases', source:'VLDB', summary:'Audit trail preservation across sharded storage with Merkle attestation. Directly relevant to cold export verification.', n:-40, zone:0, disc:'Engineering', age:'12h', type:'domain', coherent:false },
+  { title:'Family chat message — 3 new', source:'Family · internal', summary:'Three messages arrived in the family chat during the last 54-step polling window. Two from degree-1 members.', n:-77, zone:2, disc:'Community', age:'8m', type:'family', coherent:false },
+  { title:'Peer announced compatible substrate', source:'Network · internal', summary:'New peer 2a11…e84c announced with n_nodes=217, expansion_ratio=108, codec deflate-zlib-l9-nozdict-v1.', n:43, zone:6, disc:'Peers', age:'21m', type:'domain', coherent:false },
+  { title:'Partner (in-law) relationship — ring position', source:'Family · internal', summary:'Ring span update: family centroid has shifted to n=+11 following recent joins. Centroid is in the coherent band.', n:11, zone:4, disc:'Community', age:'3h', type:'family', coherent:true },
+];
+
+var activeFilter = 'all';
+var coherentOn = false;
+
+function filterFeed(type, btn) {
+  activeFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderGrid();
+}
+
+function toggleCoherent() {
+  coherentOn = !coherentOn;
+  var t = document.getElementById('cohToggle');
+  t.classList.toggle('on', coherentOn);
+  document.getElementById('cohCallout').style.display = coherentOn ? 'flex' : 'none';
+  renderGrid();
+}
+
+function renderGrid() {
+  var grid = document.getElementById('tileGrid');
+  grid.innerHTML = '';
+
+  var items = FEEDS.filter(function(f) {
+    if (activeFilter !== 'all' && f.type !== activeFilter) return false;
+    if (coherentOn && !f.coherent) return false;
+    return true;
+  });
+
+  // Coherent items first when toggle is off but we still want to sort them up
+  items.sort(function(a, b) {
+    if (a.coherent && !b.coherent) return -1;
+    if (!a.coherent && b.coherent) return 1;
+    return 0;
+  });
+
+  items.forEach(function(item) {
+    var zoneColor = ZONE_COLORS[item.zone] || '#888';
+    var zoneName  = ZONE_NAMES[item.zone]  || 'Zone ' + item.zone;
+    var isCoh = item.coherent;
+
+    var tile = document.createElement('div');
+    tile.className = 'feed-tile' + (isCoh ? ' coherent-item' : '');
+    tile.innerHTML =
+      '<div class="feed-tile-source">' +
+        '<div class="source-dot" style="background:' + zoneColor + '"></div>' +
+        item.source +
+      '</div>' +
+      '<h4>' + item.title + '</h4>' +
+      '<p class="feed-summary">' + item.summary + '</p>' +
+      '<div class="feed-tile-foot">' +
+        '<span class="feed-pos' + (isCoh ? ' coh' : '') + '">n=' + (item.n > 0 ? '+' : '') + item.n + '</span>' +
+        '<span class="feed-disc">' + item.disc + '</span>' +
+        '<span class="feed-age">' + item.age + ' ago</span>' +
+      '</div>';
+
+    grid.appendChild(tile);
+  });
+
+  if (items.length === 0) {
+    var empty = document.createElement('div');
+    empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:40px;font-family:"DM Mono",monospace;font-size:12px;color:var(--ink-3)';
+    empty.textContent = 'No items match the current filter.';
+    grid.appendChild(empty);
+  }
+}
+
+renderGrid();
+</script>
+</body>
+</html>
